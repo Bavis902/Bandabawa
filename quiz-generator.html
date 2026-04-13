@@ -1,1 +1,505 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Quiz Generator</title>\n    <style>\n        body { font-family: Arial, sans-serif; }\n        #quiz-form { margin: 20px; }\n        #quiz-output { margin-top: 20px; }\n    </style>\n</head>\n<body>\n    <h1>Quiz Generator</h1>\n    <div id="quiz-form">\n        <label for="question">Question:</label><br>\n        <input type="text" id="question" required><br>\n        <label for="options">Options (comma separated):</label><br>\n        <input type="text" id="options" required><br>\n        <button onclick="generateQuiz()">Generate Quiz</button>\n    </div>\n    <div id="quiz-output"></div>\n    <script>\n        function generateQuiz() {\n            const question = document.getElementById('question').value;\n            const options = document.getElementById('options').value.split(',');\n            const outputDiv = document.getElementById('quiz-output');\n            outputDiv.innerHTML = '<h2>Your Quiz</h2>';\n            outputDiv.innerHTML += `<p>${question}</p>`;\n            options.forEach((option, index) => {\n                outputDiv.innerHTML += `<input type="radio" name="quiz-option" value="${option.trim()}"> ${option.trim()}<br>`;\n            });\n        }\n    </script>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Quiz Creator - Bandabawa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        header {
+            text-align: center;
+            padding: 2rem 1rem 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: clamp(1.75rem, 5vw, 2.25rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--primary-light); }
+
+        .container {
+            max-width: 700px;
+            margin: 1rem auto 3rem;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .card .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        textarea:focus { border-color: var(--primary); }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-secondary { background: var(--bg-card-hover); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--border); }
+        .btn-danger { background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+        .btn-danger:hover { background: rgba(239,68,68,0.25); }
+        .btn-sm { padding: 0.45rem 0.9rem; font-size: 0.85rem; }
+        .btn-block { width: 100%; }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Question builder */
+        .question-builder {
+            margin-top: 1.5rem;
+        }
+
+        .question-item {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-item .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .question-item .q-number {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+
+        .question-item .q-text {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .option-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .option-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .option-pill .radio-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        /* Correct answer selector */
+        .correct-answer-group {
+            margin-top: 0.75rem;
+        }
+
+        .correct-answer-group label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+
+        .correct-answer-group select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .correct-answer-group select:focus { border-color: var(--primary); }
+
+        /* Quiz preview */
+        .quiz-preview {
+            margin-top: 2rem;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .preview-header h2 {
+            margin-bottom: 0;
+        }
+
+        .preview-question {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preview-question .pq-number {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-light);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-question .pq-text {
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .preview-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.85rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.4rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preview-option:hover {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.05);
+        }
+
+        .preview-option.selected {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.1);
+        }
+
+        .preview-option .po-circle {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .preview-option.selected .po-circle {
+            border-color: var(--primary);
+            background: var(--primary);
+            box-shadow: inset 0 0 0 3px var(--bg-dark);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+
+        @media (max-width: 600px) {
+            .card { padding: 1.25rem; }
+            .btn-group { flex-direction: column; }
+            .question-item { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="back-link">&#8592; Back to Hub</a>
+        <h1>Quick Quiz Creator</h1>
+        <p>Build custom quiz questions manually</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Add a Question</h2>
+            <p class="subtitle">Enter your question and answer options below</p>
+
+            <div class="form-group">
+                <label for="question-input">Question</label>
+                <textarea id="question-input" rows="2" placeholder="Type your question here..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="options-input">Answer Options</label>
+                <textarea id="options-input" rows="2" placeholder="Option 1, Option 2, Option 3, Option 4"></textarea>
+                <p class="help-text">Separate each option with a comma</p>
+            </div>
+
+            <div class="form-group">
+                <label for="correct-input">Correct Answer (option number)</label>
+                <input type="number" id="correct-input" min="1" max="10" value="1" style="width: 80px; padding: 0.5rem 0.75rem;">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary btn-block" onclick="addQuestion()">Add Question</button>
+            </div>
+
+            <!-- Added questions list -->
+            <div class="question-builder" id="question-list"></div>
+        </div>
+
+        <!-- Quiz Preview / Output -->
+        <div class="quiz-preview" id="quiz-preview" style="display:none;">
+            <div class="card">
+                <div class="preview-header">
+                    <h2>Quiz Preview</h2>
+                    <button class="btn btn-danger btn-sm" onclick="clearAll()">Clear All</button>
+                </div>
+                <div id="quiz-output"></div>
+                <div class="btn-group" style="margin-top:1rem;">
+                    <button class="btn btn-secondary" onclick="exportQuiz()">Export as JSON</button>
+                    <button class="btn btn-primary" onclick="shareQuiz()">Copy Share Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let quizQuestions = [];
+
+        function addQuestion() {
+            const qInput = document.getElementById('question-input');
+            const oInput = document.getElementById('options-input');
+            const cInput = document.getElementById('correct-input');
+
+            const questionText = qInput.value.trim();
+            const optionsText = oInput.value.trim();
+            const correctIdx = parseInt(cInput.value) - 1;
+
+            if (!questionText) { alert('Please enter a question.'); return; }
+            if (!optionsText) { alert('Please enter at least two options.'); return; }
+
+            const options = optionsText.split(',').map(o => o.trim()).filter(o => o);
+            if (options.length < 2) { alert('Please enter at least two options separated by commas.'); return; }
+            if (correctIdx < 0 || correctIdx >= options.length) { alert('Correct answer number is out of range.'); return; }
+
+            quizQuestions.push({ text: questionText, options, correct: correctIdx });
+
+            qInput.value = '';
+            oInput.value = '';
+            cInput.value = '1';
+
+            renderQuestionList();
+            renderPreview();
+        }
+
+        function removeQuestion(index) {
+            quizQuestions.splice(index, 1);
+            renderQuestionList();
+            renderPreview();
+        }
+
+        function renderQuestionList() {
+            const el = document.getElementById('question-list');
+            if (quizQuestions.length === 0) {
+                el.innerHTML = '';
+                return;
+            }
+            el.innerHTML = quizQuestions.map((q, i) => `
+                <div class="question-item">
+                    <div class="q-header">
+                        <span class="q-number">Question ${i + 1}</span>
+                        <button class="btn btn-danger btn-sm" onclick="removeQuestion(${i})">Remove</button>
+                    </div>
+                    <div class="q-text">${q.text}</div>
+                    <div class="option-list">
+                        ${q.options.map((opt, oi) => `
+                            <div class="option-pill" style="${oi === q.correct ? 'border-color: var(--success); background: rgba(16,185,129,0.05);' : ''}">
+                                <div class="radio-dot" style="${oi === q.correct ? 'border-color: var(--success); background: var(--success);' : ''}"></div>
+                                <span>${opt}${oi === q.correct ? ' (correct)' : ''}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPreview() {
+            const preview = document.getElementById('quiz-preview');
+            const output = document.getElementById('quiz-output');
+
+            if (quizQuestions.length === 0) {
+                preview.style.display = 'none';
+                return;
+            }
+
+            preview.style.display = 'block';
+            output.innerHTML = quizQuestions.map((q, qi) => `
+                <div class="preview-question">
+                    <div class="pq-number">Question ${qi + 1} of ${quizQuestions.length}</div>
+                    <div class="pq-text">${q.text}</div>
+                    ${q.options.map((opt, oi) => `
+                        <div class="preview-option" onclick="togglePreviewOption(this)">
+                            <div class="po-circle"></div>
+                            <span>${opt}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        function togglePreviewOption(el) {
+            const parent = el.closest('.preview-question');
+            parent.querySelectorAll('.preview-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function clearAll() {
+            if (confirm('Are you sure you want to remove all questions?')) {
+                quizQuestions = [];
+                renderQuestionList();
+                renderPreview();
+            }
+        }
+
+        function exportQuiz() {
+            const data = JSON.stringify(quizQuestions, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'quiz.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function shareQuiz() {
+            const encoded = btoa(JSON.stringify(quizQuestions));
+            const url = window.location.href.split('?')[0] + '?quiz=' + encoded;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Share link copied to clipboard!');
+            }).catch(() => {
+                prompt('Copy this link:', url);
+            });
+        }
+
+        // Load shared quiz from URL
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const quizParam = params.get('quiz');
+            if (quizParam) {
+                try {
+                    quizQuestions = JSON.parse(atob(quizParam));
+                    renderQuestionList();
+                    renderPreview();
+                } catch(e) { /* ignore invalid data */ }
+            }
+        })();
+    </script>
+</body>
+</html>
