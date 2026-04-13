@@ -3,86 +3,1135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Generator</title>
+    <title>Bandabawa Quiz Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(to right, #00c6ff, #0072ff); color: white; }
-        header { text-align: center; padding: 20px; }
-        h1 { margin: 0; }
-        .container { max-width: 800px; margin: auto; padding: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -2px rgba(0,0,0,0.2);
+            --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.4), 0 4px 6px -4px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(245,158,11,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(16,185,129,0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 1rem 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 1rem;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            max-width: 700px;
+            margin: 1.5rem auto;
+            display: flex;
+            align-items: center;
+            gap: 0;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .progress-step .step-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .progress-step.active .step-circle {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.2);
+        }
+
+        .progress-step.completed .step-circle {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .progress-step .step-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .progress-step.active .step-label { color: var(--primary-light); }
+        .progress-step.completed .step-label { color: var(--success); }
+
+        .progress-line {
+            flex: 1;
+            height: 2px;
+            background: var(--border);
+            margin-bottom: 1.4rem;
+            transition: background 0.3s ease;
+        }
+
+        .progress-line.completed { background: var(--success); }
+
+        /* Container */
+        .container {
+            max-width: 700px;
+            margin: 1rem auto 2rem;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .page { display: none; }
         .active { display: block; }
-        input[type="range"] { width: 100%; }
-        button { padding: 10px 20px; background-color: #0056b3; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; }
-        button:hover { background-color: #004494; }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        /* File upload area */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(99,102,241,0.03);
+            position: relative;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.08);
+        }
+
+        .upload-area .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .upload-area h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .upload-area p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .upload-area .browse-link {
+            color: var(--primary-light);
+            font-weight: 500;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--bg-card-hover);
+            padding: 0.65rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .file-item .file-icon { font-size: 1.2rem; }
+
+        .file-item .file-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-item .file-size {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .file-item .remove-file {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0;
+            line-height: 1;
+        }
+
+        /* URL input */
+        .url-input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .url-input-group input {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .url-input-group input:focus { border-color: var(--primary); }
+
+        .url-input-group input::placeholder { color: var(--text-muted); }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: var(--shadow); }
+
+        .btn-secondary {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover { background: var(--border); }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover { background: #059669; }
+
+        .btn-accent {
+            background: var(--accent);
+            color: #1e293b;
+        }
+
+        .btn-accent:hover { background: #d97706; }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-block { width: 100%; }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-group .btn { flex: 1; }
+
+        /* Form controls */
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+            appearance: none;
+        }
+
+        select:focus, input[type="text"]:focus, input[type="number"]:focus {
+            border-color: var(--primary);
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        .form-group { margin-bottom: 1.25rem; }
+
+        /* Range slider */
+        .range-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .range-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .range-value {
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            min-width: 2.5rem;
+            text-align: center;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+            transition: box-shadow 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            box-shadow: 0 0 0 5px rgba(99,102,241,0.3);
+        }
+
+        /* Difficulty chips */
+        .chip-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.4rem;
+        }
+
+        .chip {
+            padding: 0.45rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg-dark);
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .chip:hover { border-color: var(--primary); color: var(--text-primary); }
+
+        .chip.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Quiz questions */
+        .quiz-question {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .quiz-question .q-number {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-light);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-question .q-text {
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .quiz-question .q-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .q-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+        }
+
+        .q-option:hover { border-color: var(--primary); background: rgba(99,102,241,0.05); }
+
+        .q-option.selected {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.1);
+        }
+
+        .q-option input[type="radio"] { display: none; }
+
+        .q-option .radio-circle {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .q-option.selected .radio-circle {
+            border-color: var(--primary);
+            background: var(--primary);
+        }
+
+        .q-option.selected .radio-circle::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .q-option .option-text { font-size: 0.95rem; }
+
+        /* Timer */
+        .timer-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .timer-icon { font-size: 1.2rem; }
+
+        .timer-text {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-progress {
+            flex: 1;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .timer-progress-fill {
+            height: 100%;
+            background: var(--success);
+            border-radius: 2px;
+            transition: width 1s linear;
+        }
+
+        .timer-progress-fill.warning { background: var(--accent); }
+        .timer-progress-fill.danger { background: var(--danger); }
+
+        /* Results */
+        .results-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 1.5rem auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid;
+            position: relative;
+        }
+
+        .score-circle.excellent { border-color: var(--success); color: var(--success); }
+        .score-circle.good { border-color: var(--primary); color: var(--primary); }
+        .score-circle.needs-work { border-color: var(--accent); color: var(--accent); }
+        .score-circle.poor { border-color: var(--danger); color: var(--danger); }
+
+        .score-circle .score-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-circle .score-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .score-message {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .score-detail {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .results-breakdown {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-box {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-box .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-box .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.2rem;
+        }
+
+        .stat-box.correct .stat-value { color: var(--success); }
+        .stat-box.wrong .stat-value { color: var(--danger); }
+        .stat-box.skipped .stat-value { color: var(--text-muted); }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .card { padding: 1.25rem; }
+            .upload-area { padding: 1.5rem 1rem; }
+            .btn-group { flex-direction: column; }
+            .results-breakdown { grid-template-columns: 1fr; }
+            .progress-step .step-label { font-size: 0.6rem; }
+            .progress-step .step-circle { width: 30px; height: 30px; font-size: 0.75rem; }
+            .url-input-group { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>Quiz Generator</h1>
+        <h1>Bandabawa Quiz Generator</h1>
+        <p>Create quizzes from your study materials in seconds</p>
     </header>
-    <div class="container">
-        <div class="page active" id="upload-page">
-            <h2>Upload Content</h2>
-            <form>
-                <input type="file" accept="application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, video/*, application/vnd.ms-powerpoint" multiple />
-                <p>Upload PDFs, Word Documents, YouTube Links, Notes, or PowerPoints.</p>
-                <button type="button" onclick="nextPage('settings-page')">Next</button>
-            </form>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progress-bar">
+        <div class="progress-step active" data-step="1">
+            <div class="step-circle">1</div>
+            <div class="step-label">Upload</div>
         </div>
-        <div class="page" id="settings-page">
-            <h2>Select Question Settings</h2>
-            <form>
-                <label for="num-questions">Number of Questions:</label>
-                <input type="range" id="num-questions" min="1" max="50" value="10" />
-                <label id="num-questions-label">10</label>
-                <br />
-                <label for="question-type">Question Type:</label>
-                <select id="question-type">
-                    <option value="true-false">True/False</option>
-                    <option value="multiple-choice">Multiple Choice</option>
-                    <option value="open-ended">Open-Ended</option>
-                </select>
-                <br />
-                <button type="button" onclick="nextPage('quiz-page')">Next</button>
-            </form>
+        <div class="progress-line" id="line-1-2"></div>
+        <div class="progress-step" data-step="2">
+            <div class="step-circle">2</div>
+            <div class="step-label">Settings</div>
         </div>
-        <div class="page" id="quiz-page">
-            <h2>Take the Quiz</h2>
-            <form id="quiz-form">
-                <!-- Quiz questions will be generated here -->
-                <button type="submit">Submit Quiz</button>
-            </form>
+        <div class="progress-line" id="line-2-3"></div>
+        <div class="progress-step" data-step="3">
+            <div class="step-circle">3</div>
+            <div class="step-label">Quiz</div>
         </div>
-        <div class="page" id="results-page">
-            <h2>Quiz Results</h2>
-            <div id="results"></div>
-            <button type="button" onclick="resetQuiz()">Take Quiz Again</button>
+        <div class="progress-line" id="line-3-4"></div>
+        <div class="progress-step" data-step="4">
+            <div class="step-circle">4</div>
+            <div class="step-label">Results</div>
         </div>
     </div>
+
+    <div class="container">
+        <!-- Page 1: Upload -->
+        <div class="page active" id="upload-page">
+            <div class="card">
+                <h2>Upload Your Content</h2>
+                <p class="subtitle">Drag and drop files or paste a URL to generate quiz questions</p>
+
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">&#128229;</div>
+                    <h3>Drop files here</h3>
+                    <p>or <span class="browse-link" id="browse-btn">browse your computer</span></p>
+                    <p style="margin-top:0.5rem; font-size:0.8rem; color:var(--text-muted);">Supports PDF, Word, PowerPoint, images, and text files</p>
+                    <input type="file" id="file-input" accept=".pdf,.doc,.docx,.pptx,.ppt,.txt,.png,.jpg,.jpeg,.gif" multiple />
+                </div>
+
+                <div class="file-list" id="file-list"></div>
+
+                <div class="url-input-group">
+                    <input type="text" id="url-input" placeholder="Paste a YouTube or website URL..." />
+                    <button class="btn btn-secondary btn-sm" type="button" onclick="addUrl()">Add URL</button>
+                </div>
+
+                <div id="url-list" class="file-list" style="margin-top:0.5rem;"></div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary btn-block" type="button" onclick="goToSettings()">
+                        Continue to Settings &#8594;
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 2: Settings -->
+        <div class="page" id="settings-page">
+            <div class="card">
+                <h2>Quiz Settings</h2>
+                <p class="subtitle">Customize how your quiz will be generated</p>
+
+                <div class="range-group">
+                    <div class="range-header">
+                        <label for="num-questions">Number of Questions</label>
+                        <span class="range-value" id="num-questions-label">10</span>
+                    </div>
+                    <input type="range" id="num-questions" min="1" max="50" value="10" />
+                </div>
+
+                <div class="form-group">
+                    <label for="question-type">Question Type</label>
+                    <select id="question-type">
+                        <option value="multiple-choice">Multiple Choice</option>
+                        <option value="true-false">True / False</option>
+                        <option value="open-ended">Open-Ended / Short Answer</option>
+                        <option value="mixed">Mixed (All Types)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Difficulty Level</label>
+                    <div class="chip-group" id="difficulty-chips">
+                        <div class="chip" data-value="easy" onclick="selectChip(this)">Easy</div>
+                        <div class="chip selected" data-value="medium" onclick="selectChip(this)">Medium</div>
+                        <div class="chip" data-value="hard" onclick="selectChip(this)">Hard</div>
+                        <div class="chip" data-value="mixed" onclick="selectChip(this)">Mixed</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="time-limit">Time Limit (minutes, 0 = no limit)</label>
+                    <input type="number" id="time-limit" value="10" min="0" max="120" />
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" type="button" onclick="goToUpload()">&#8592; Back</button>
+                    <button class="btn btn-primary" type="button" onclick="generateQuiz()">Generate Quiz &#8594;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 3: Quiz -->
+        <div class="page" id="quiz-page">
+            <div class="card">
+                <div class="timer-bar" id="timer-bar" style="display:none;">
+                    <span class="timer-icon">&#9202;</span>
+                    <span class="timer-text" id="timer-text">10:00</span>
+                    <div class="timer-progress">
+                        <div class="timer-progress-fill" id="timer-fill" style="width:100%"></div>
+                    </div>
+                </div>
+                <h2>Take the Quiz</h2>
+                <p class="subtitle" id="quiz-subtitle">Answer the questions below</p>
+                <div id="quiz-questions"></div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" type="button" onclick="goToSettings()">&#8592; Back</button>
+                    <button class="btn btn-success btn-block" type="button" onclick="submitQuiz()">Submit Quiz &#10003;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 4: Results -->
+        <div class="page" id="results-page">
+            <div class="card results-card">
+                <h2>Quiz Complete!</h2>
+                <div class="score-circle" id="score-circle">
+                    <span class="score-number" id="score-number">0%</span>
+                    <span class="score-label">Score</span>
+                </div>
+                <div class="score-message" id="score-message">Great job!</div>
+                <div class="score-detail" id="score-detail"></div>
+                <div class="results-breakdown" id="results-breakdown">
+                    <div class="stat-box correct">
+                        <div class="stat-value" id="correct-count">0</div>
+                        <div class="stat-label">Correct</div>
+                    </div>
+                    <div class="stat-box wrong">
+                        <div class="stat-value" id="wrong-count">0</div>
+                        <div class="stat-label">Wrong</div>
+                    </div>
+                    <div class="stat-box skipped">
+                        <div class="stat-value" id="skipped-count">0</div>
+                        <div class="stat-label">Skipped</div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" type="button" onclick="resetQuiz()">&#8592; Start Over</button>
+                    <button class="btn btn-accent" type="button" onclick="reviewAnswers()">Review Answers</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function nextPage(pageId) {
-            const currentPage = document.querySelector('.active');
-            const nextPage = document.getElementById(pageId);
-            currentPage.classList.remove('active');
-            nextPage.classList.add('active');
-            if (pageId === 'settings-page') {
-                document.getElementById('num-questions-label').innerText = document.getElementById('num-questions').value;
-                document.getElementById('num-questions').oninput = function() {
-                    document.getElementById('num-questions-label').innerText = this.value;
-                };
+        // State
+        let uploadedFiles = [];
+        let addedUrls = [];
+        let currentStep = 1;
+        let timerInterval = null;
+        let timeRemaining = 0;
+        let totalTime = 0;
+        let quizData = [];
+        let userAnswers = {};
+
+        // --- File Upload ---
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const browseBtn = document.getElementById('browse-btn');
+        const fileListEl = document.getElementById('file-list');
+
+        browseBtn.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('click', (e) => { if (e.target === uploadArea || e.target.parentElement === uploadArea) fileInput.click(); });
+
+        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+        function handleFiles(files) {
+            for (const file of files) {
+                if (!uploadedFiles.find(f => f.name === file.name)) {
+                    uploadedFiles.push(file);
+                }
+            }
+            renderFileList();
+        }
+
+        function renderFileList() {
+            fileListEl.innerHTML = uploadedFiles.map((f, i) => `
+                <div class="file-item">
+                    <span class="file-icon">${getFileIcon(f.name)}</span>
+                    <span class="file-name">${f.name}</span>
+                    <span class="file-size">${formatSize(f.size)}</span>
+                    <button class="remove-file" onclick="removeFile(${i})">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            renderFileList();
+        }
+
+        function getFileIcon(name) {
+            const ext = name.split('.').pop().toLowerCase();
+            const icons = { pdf: '&#128196;', doc: '&#128196;', docx: '&#128196;', ppt: '&#128202;', pptx: '&#128202;', txt: '&#128221;', png: '&#128247;', jpg: '&#128247;', jpeg: '&#128247;', gif: '&#128247;' };
+            return icons[ext] || '&#128196;';
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        // --- URL ---
+        function addUrl() {
+            const input = document.getElementById('url-input');
+            const url = input.value.trim();
+            if (url && !addedUrls.includes(url)) {
+                addedUrls.push(url);
+                input.value = '';
+                renderUrlList();
             }
         }
-        function resetQuiz() {
-            const pages = document.querySelectorAll('.page');
-            pages.forEach(page => page.classList.remove('active'));
-            document.getElementById('upload-page').classList.add('active');
+
+        function renderUrlList() {
+            const el = document.getElementById('url-list');
+            el.innerHTML = addedUrls.map((u, i) => `
+                <div class="file-item">
+                    <span class="file-icon">&#128279;</span>
+                    <span class="file-name">${u}</span>
+                    <button class="remove-file" onclick="removeUrl(${i})">&times;</button>
+                </div>
+            `).join('');
         }
-        document.getElementById('quiz-form').onsubmit = function(event) {
-            event.preventDefault();
-            // Handle quiz submission logic here (scoring, feedback)
-            nextPage('results-page');
-            document.getElementById('results').innerText = 'Your results will be displayed here.';
-        };
+
+        function removeUrl(index) {
+            addedUrls.splice(index, 1);
+            renderUrlList();
+        }
+
+        // --- Navigation ---
+        function setStep(step) {
+            currentStep = step;
+            const steps = document.querySelectorAll('.progress-step');
+            const lines = document.querySelectorAll('.progress-line');
+            steps.forEach((s, i) => {
+                s.classList.remove('active', 'completed');
+                if (i + 1 < step) s.classList.add('completed');
+                if (i + 1 === step) s.classList.add('active');
+            });
+            lines.forEach((l, i) => {
+                l.classList.toggle('completed', i + 1 < step);
+            });
+        }
+
+        function showPage(pageId, step) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            setStep(step);
+        }
+
+        function goToUpload() { showPage('upload-page', 1); }
+        function goToSettings() { showPage('settings-page', 2); }
+
+        // --- Settings ---
+        const numQuestionsSlider = document.getElementById('num-questions');
+        const numQuestionsLabel = document.getElementById('num-questions-label');
+        numQuestionsSlider.oninput = function() { numQuestionsLabel.textContent = this.value; };
+
+        function selectChip(el) {
+            el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        // --- Quiz Generation ---
+        function generateQuiz() {
+            const numQ = parseInt(numQuestionsSlider.value);
+            const type = document.getElementById('question-type').value;
+            const difficulty = document.querySelector('#difficulty-chips .chip.selected')?.dataset.value || 'medium';
+            const timeLimit = parseInt(document.getElementById('time-limit').value) || 0;
+
+            // Generate sample questions
+            quizData = generateSampleQuestions(numQ, type, difficulty);
+            userAnswers = {};
+            renderQuiz();
+
+            // Timer
+            if (timeLimit > 0) {
+                totalTime = timeLimit * 60;
+                timeRemaining = totalTime;
+                document.getElementById('timer-bar').style.display = 'flex';
+                startTimer();
+            } else {
+                document.getElementById('timer-bar').style.display = 'none';
+            }
+
+            document.getElementById('quiz-subtitle').textContent =
+                `${numQ} questions \u00B7 ${difficulty} difficulty \u00B7 ${type.replace('-', ' ')}`;
+
+            showPage('quiz-page', 3);
+        }
+
+        function generateSampleQuestions(num, type, difficulty) {
+            const bank = [
+                { text: 'What is the capital of France?', options: ['London', 'Berlin', 'Paris', 'Madrid'], correct: 2 },
+                { text: 'Which planet is known as the Red Planet?', options: ['Venus', 'Mars', 'Jupiter', 'Saturn'], correct: 1 },
+                { text: 'What is 2 + 2?', options: ['3', '4', '5', '6'], correct: 1 },
+                { text: 'Who wrote "Romeo and Juliet"?', options: ['Dickens', 'Shakespeare', 'Austen', 'Twain'], correct: 1 },
+                { text: 'What is the largest ocean on Earth?', options: ['Atlantic', 'Indian', 'Arctic', 'Pacific'], correct: 3 },
+                { text: 'What gas do plants absorb from the atmosphere?', options: ['Oxygen', 'Nitrogen', 'Carbon Dioxide', 'Helium'], correct: 2 },
+                { text: 'In what year did World War II end?', options: ['1943', '1944', '1945', '1946'], correct: 2 },
+                { text: 'What is the chemical symbol for water?', options: ['O2', 'H2O', 'CO2', 'NaCl'], correct: 1 },
+                { text: 'Which continent is the Sahara Desert on?', options: ['Asia', 'South America', 'Africa', 'Australia'], correct: 2 },
+                { text: 'What is the speed of light approximately?', options: ['300,000 km/s', '150,000 km/s', '1,000 km/s', '30,000 km/s'], correct: 0 },
+                { text: 'Who painted the Mona Lisa?', options: ['Michelangelo', 'Raphael', 'Da Vinci', 'Rembrandt'], correct: 2 },
+                { text: 'What is the tallest mountain in the world?', options: ['K2', 'Kangchenjunga', 'Mount Everest', 'Lhotse'], correct: 2 },
+            ];
+
+            const questions = [];
+            for (let i = 0; i < num; i++) {
+                const q = { ...bank[i % bank.length] };
+                q.id = i;
+
+                if (type === 'true-false') {
+                    q.options = ['True', 'False'];
+                    q.correct = Math.random() > 0.5 ? 0 : 1;
+                    q.text = q.text.replace('?', '') + ' - True or False?';
+                }
+
+                questions.push(q);
+            }
+            return questions;
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-questions');
+            container.innerHTML = quizData.map((q, qi) => {
+                if (document.getElementById('question-type').value === 'open-ended') {
+                    return `
+                        <div class="quiz-question">
+                            <div class="q-number">Question ${qi + 1} of ${quizData.length}</div>
+                            <div class="q-text">${q.text}</div>
+                            <input type="text" placeholder="Type your answer..." style="width:100%"
+                                   oninput="userAnswers[${qi}] = this.value" />
+                        </div>`;
+                }
+                return `
+                    <div class="quiz-question">
+                        <div class="q-number">Question ${qi + 1} of ${quizData.length}</div>
+                        <div class="q-text">${q.text}</div>
+                        <div class="q-options">
+                            ${q.options.map((opt, oi) => `
+                                <label class="q-option" id="opt-${qi}-${oi}" onclick="selectOption(${qi}, ${oi})">
+                                    <input type="radio" name="q${qi}" value="${oi}" />
+                                    <span class="radio-circle"></span>
+                                    <span class="option-text">${opt}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function selectOption(qi, oi) {
+            userAnswers[qi] = oi;
+            // Update UI
+            document.querySelectorAll(`[id^="opt-${qi}-"]`).forEach(el => el.classList.remove('selected'));
+            document.getElementById(`opt-${qi}-${oi}`).classList.add('selected');
+        }
+
+        // --- Timer ---
+        function startTimer() {
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timeRemaining / 60);
+            const secs = timeRemaining % 60;
+            document.getElementById('timer-text').textContent =
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+            const pct = (timeRemaining / totalTime) * 100;
+            const fill = document.getElementById('timer-fill');
+            fill.style.width = pct + '%';
+            fill.className = 'timer-progress-fill' +
+                (pct < 20 ? ' danger' : pct < 50 ? ' warning' : '');
+        }
+
+        // --- Submit & Results ---
+        function submitQuiz() {
+            clearInterval(timerInterval);
+
+            let correct = 0, wrong = 0, skipped = 0;
+            quizData.forEach((q, i) => {
+                if (userAnswers[i] === undefined || userAnswers[i] === '') skipped++;
+                else if (userAnswers[i] === q.correct) correct++;
+                else wrong++;
+            });
+
+            const total = quizData.length;
+            const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+            document.getElementById('score-number').textContent = pct + '%';
+            document.getElementById('correct-count').textContent = correct;
+            document.getElementById('wrong-count').textContent = wrong;
+            document.getElementById('skipped-count').textContent = skipped;
+            document.getElementById('score-detail').textContent =
+                `You answered ${correct} out of ${total} questions correctly.`;
+
+            const circle = document.getElementById('score-circle');
+            circle.className = 'score-circle ' +
+                (pct >= 90 ? 'excellent' : pct >= 70 ? 'good' : pct >= 50 ? 'needs-work' : 'poor');
+
+            const msgs = {
+                excellent: 'Outstanding! You nailed it!',
+                good: 'Great job! Keep it up!',
+                'needs-work': 'Good effort! Room to improve.',
+                poor: 'Keep studying, you\'ll get there!'
+            };
+            const grade = pct >= 90 ? 'excellent' : pct >= 70 ? 'good' : pct >= 50 ? 'needs-work' : 'poor';
+            document.getElementById('score-message').textContent = msgs[grade];
+
+            showPage('results-page', 4);
+        }
+
+        function reviewAnswers() {
+            alert('Answer review coming soon! Check back for detailed question-by-question feedback.');
+        }
+
+        function resetQuiz() {
+            clearInterval(timerInterval);
+            uploadedFiles = [];
+            addedUrls = [];
+            userAnswers = {};
+            quizData = [];
+            fileListEl.innerHTML = '';
+            document.getElementById('url-list').innerHTML = '';
+            showPage('upload-page', 1);
+        }
     </script>
 </body>
 </html>

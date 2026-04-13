@@ -3,39 +3,463 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Generator</title>
+    <title>Bandabawa - Quiz Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <style>
-        body { font-family: Arial, sans-serif; }
-        #quiz-container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
-        .question { margin-bottom: 20px; }
-        .options { list-style: none; padding: 0; }
-        .options li { margin: 10px 0; }
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 6vw, 3rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto 2rem;
+        }
+
+        .cards-grid {
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px -8px rgba(99,102,241,0.25);
+        }
+
+        .feature-card .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .feature-card .card-badge {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-primary { background: rgba(99,102,241,0.15); color: var(--primary-light); }
+        .badge-success { background: rgba(16,185,129,0.15); color: var(--success); }
+        .badge-accent { background: rgba(245,158,11,0.15); color: var(--accent); }
+
+        /* Quick quiz section */
+        .quick-quiz {
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quick-quiz .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: 0 10px 25px -3px rgba(0,0,0,0.4);
+        }
+
+        .quick-quiz h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-quiz .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-question-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-question-card .q-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-light);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-question-card h3 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.05);
+        }
+
+        .option-btn.selected {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.1);
+        }
+
+        .option-btn.correct {
+            border-color: var(--success);
+            background: rgba(16,185,129,0.1);
+            color: var(--success);
+        }
+
+        .option-btn.wrong {
+            border-color: var(--danger);
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+        }
+
+        .option-letter {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .option-btn.selected .option-letter {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .option-btn.correct .option-letter {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+
+        .option-btn.wrong .option-letter {
+            border-color: var(--danger);
+            background: var(--danger);
+            color: white;
+        }
+
+        .quiz-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+
+        .quiz-progress-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-secondary { background: var(--bg-card-hover); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--border); }
+
+        .feedback-bar {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback-bar.correct {
+            display: block;
+            background: rgba(16,185,129,0.1);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: var(--success);
+        }
+
+        .feedback-bar.wrong {
+            display: block;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: var(--danger);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 600px) {
+            .cards-grid { grid-template-columns: 1fr; }
+            .quick-quiz .card { padding: 1.25rem; }
+        }
     </style>
 </head>
 <body>
-    <div id="quiz-container">
-        <div class="question">
-            <h2 id="question-display">Question goes here</h2>
-        </div>
-        <ul class="options">
-            <li><label><input type="radio" name="option" value="1"> Option 1</label></li>
-            <li><label><input type="radio" name="option" value="2"> Option 2</label></li>
-            <li><label><input type="radio" name="option" value="3"> Option 3</label></li>
-            <li><label><input type="radio" name="option" value="4"> Option 4</label></li>
-        </ul>
-        <button id="submit-answer">Submit Answer</button>
+    <div class="hero">
+        <h1>Bandabawa</h1>
+        <p>Your personal quiz generator. Upload content, create quizzes, and test your knowledge.</p>
     </div>
 
+    <div class="cards-grid">
+        <a href="quiz-generator-advanced.html" class="feature-card">
+            <div class="card-icon">&#128640;</div>
+            <h3>Advanced Quiz Generator</h3>
+            <p>Upload PDFs, docs, or URLs and auto-generate quizzes with custom settings.</p>
+            <span class="card-badge badge-primary">Full Featured</span>
+        </a>
+        <a href="quiz-generator.html" class="feature-card">
+            <div class="card-icon">&#9997;</div>
+            <h3>Quick Quiz Creator</h3>
+            <p>Manually create quiz questions with custom options in seconds.</p>
+            <span class="card-badge badge-success">Simple</span>
+        </a>
+        <div class="feature-card" style="cursor: default; opacity: 0.6;">
+            <div class="card-icon">&#128218;</div>
+            <h3>Flashcard Mode</h3>
+            <p>Convert your study material into interactive flashcards for review.</p>
+            <span class="card-badge badge-accent">Coming Soon</span>
+        </div>
+    </div>
+
+    <div class="quick-quiz">
+        <div class="card">
+            <h2>&#127919; Quick Sample Quiz</h2>
+            <p class="subtitle">Try a sample question right here</p>
+
+            <div id="quiz-area">
+                <!-- Questions rendered by JS -->
+            </div>
+
+            <div class="feedback-bar" id="feedback-bar"></div>
+
+            <div class="quiz-nav">
+                <span class="quiz-progress-text" id="progress-text">Question 1 of 5</span>
+                <div>
+                    <button class="btn btn-secondary" id="skip-btn" onclick="skipQuestion()">Skip</button>
+                    <button class="btn btn-primary" id="submit-btn" onclick="checkAnswer()">Submit</button>
+                    <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" style="display:none;">Next &#8594;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built with Bandabawa &mdash; <a href="quiz-generator-advanced.html">Create your own quiz</a></p>
+    </footer>
+
     <script>
-        // JavaScript for quiz functionality will go here
-        document.getElementById('submit-answer').addEventListener('click', function() {
-            const selectedOption = document.querySelector('input[name="option"]:checked');
-            if (selectedOption) {
-                alert('You selected Option ' + selectedOption.value);
-            } else {
-                alert('Please select an option.');
+        const questions = [
+            { text: 'What is the capital of France?', options: ['London', 'Berlin', 'Paris', 'Madrid'], correct: 2 },
+            { text: 'Which planet is closest to the Sun?', options: ['Venus', 'Mercury', 'Earth', 'Mars'], correct: 1 },
+            { text: 'What is the chemical symbol for gold?', options: ['Ag', 'Fe', 'Au', 'Cu'], correct: 2 },
+            { text: 'Who wrote "1984"?', options: ['Huxley', 'Orwell', 'Bradbury', 'Asimov'], correct: 1 },
+            { text: 'What is the largest mammal?', options: ['African Elephant', 'Blue Whale', 'Giraffe', 'Polar Bear'], correct: 1 }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let selectedOption = null;
+        let answered = false;
+
+        function renderQuestion() {
+            if (currentQ >= questions.length) {
+                showResults();
+                return;
             }
-        });
+            const q = questions[currentQ];
+            const letters = ['A', 'B', 'C', 'D'];
+            document.getElementById('quiz-area').innerHTML = `
+                <div class="quiz-question-card">
+                    <div class="q-label">Question ${currentQ + 1}</div>
+                    <h3>${q.text}</h3>
+                    ${q.options.map((opt, i) => `
+                        <button class="option-btn" id="opt-${i}" onclick="selectOpt(${i})">
+                            <span class="option-letter">${letters[i]}</span>
+                            <span>${opt}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('progress-text').textContent = `Question ${currentQ + 1} of ${questions.length}`;
+            document.getElementById('feedback-bar').className = 'feedback-bar';
+            document.getElementById('feedback-bar').style.display = 'none';
+            document.getElementById('submit-btn').style.display = '';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('skip-btn').style.display = '';
+            selectedOption = null;
+            answered = false;
+        }
+
+        function selectOpt(i) {
+            if (answered) return;
+            selectedOption = i;
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('opt-' + i).classList.add('selected');
+        }
+
+        function checkAnswer() {
+            if (selectedOption === null || answered) return;
+            answered = true;
+            const q = questions[currentQ];
+            const fb = document.getElementById('feedback-bar');
+
+            if (selectedOption === q.correct) {
+                score++;
+                document.getElementById('opt-' + selectedOption).classList.add('correct');
+                fb.textContent = 'Correct! Well done.';
+                fb.className = 'feedback-bar correct';
+            } else {
+                document.getElementById('opt-' + selectedOption).classList.add('wrong');
+                document.getElementById('opt-' + q.correct).classList.add('correct');
+                fb.textContent = `Wrong! The correct answer was: ${q.options[q.correct]}`;
+                fb.className = 'feedback-bar wrong';
+            }
+
+            document.getElementById('submit-btn').style.display = 'none';
+            document.getElementById('skip-btn').style.display = 'none';
+            document.getElementById('next-btn').style.display = '';
+        }
+
+        function skipQuestion() {
+            currentQ++;
+            renderQuestion();
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            renderQuestion();
+        }
+
+        function showResults() {
+            const pct = Math.round((score / questions.length) * 100);
+            const emoji = pct >= 80 ? '&#127942;' : pct >= 60 ? '&#128077;' : '&#128170;';
+            document.getElementById('quiz-area').innerHTML = `
+                <div class="quiz-question-card" style="text-align:center; padding:2rem;">
+                    <div style="font-size:3rem; margin-bottom:1rem;">${emoji}</div>
+                    <h3 style="font-size:1.4rem; margin-bottom:0.5rem;">You scored ${score}/${questions.length} (${pct}%)</h3>
+                    <p style="color:var(--text-secondary);">
+                        ${pct >= 80 ? 'Excellent work!' : pct >= 60 ? 'Good job! Keep studying.' : 'Keep practicing, you\'ll improve!'}
+                    </p>
+                </div>
+            `;
+            document.getElementById('progress-text').textContent = 'Quiz Complete';
+            document.getElementById('submit-btn').style.display = 'none';
+            document.getElementById('skip-btn').style.display = 'none';
+            document.getElementById('next-btn').textContent = 'Restart';
+            document.getElementById('next-btn').style.display = '';
+            document.getElementById('next-btn').onclick = () => { currentQ = 0; score = 0; renderQuestion(); };
+            document.getElementById('feedback-bar').style.display = 'none';
+        }
+
+        renderQuestion();
     </script>
 </body>
 </html>
