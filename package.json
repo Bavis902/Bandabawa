@@ -1,2 +1,20 @@
-{\n  "name": "quiz-generator",\n  "version": "1.0.0",\n  "description": "A quiz generator app",
-  "main": "index.js",\n  "scripts": {\n    "test": "echo \"Error: no test specified\" && exit 1"\n  },\n  "dependencies": {\n    "express": "^4.17.1",\n    "cors": "^2.8.5",\n    "body-parser": "^1.19.0"\n  },\n  "devDependencies": {\n    "nodemon": "^2.0.12"\n  }\n}
+{
+  "name": "quiz-generator",
+  "version": "1.0.0",
+  "description": "A quiz generator app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "express-rate-limit": "^7.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

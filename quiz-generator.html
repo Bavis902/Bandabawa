@@ -1,1 +1,33 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Quiz Generator</title>\n    <style>\n        body { font-family: Arial, sans-serif; }\n        #quiz-form { margin: 20px; }\n        #quiz-output { margin-top: 20px; }\n    </style>\n</head>\n<body>\n    <h1>Quiz Generator</h1>\n    <div id="quiz-form">\n        <label for="question">Question:</label><br>\n        <input type="text" id="question" required><br>\n        <label for="options">Options (comma separated):</label><br>\n        <input type="text" id="options" required><br>\n        <button onclick="generateQuiz()">Generate Quiz</button>\n    </div>\n    <div id="quiz-output"></div>\n    <script>\n        function generateQuiz() {\n            const question = document.getElementById('question').value;\n            const options = document.getElementById('options').value.split(',');\n            const outputDiv = document.getElementById('quiz-output');\n            outputDiv.innerHTML = '<h2>Your Quiz</h2>';\n            outputDiv.innerHTML += `<p>${question}</p>`;\n            options.forEach((option, index) => {\n                outputDiv.innerHTML += `<input type="radio" name="quiz-option" value="${option.trim()}"> ${option.trim()}<br>`;\n            });\n        }\n    </script>\n</body>\n</html>
+<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Quiz Generator</title>\n    <style>\n        body { font-family: Arial, sans-serif; }\n        #quiz-form { margin: 20px; }\n        #quiz-output { margin-top: 20px; }\n    </style>\n</head>\n<body>\n    <h1>Quiz Generator</h1>\n    <div id="quiz-form">\n        <label for="question">Question:</label><br>\n        <input type="text" id="question" required><br>\n        <label for="options">Options (comma separated):</label><br>\n        <input type="text" id="options" required><br>\n        <button onclick="generateQuiz()">Generate Quiz</button>\n    </div>\n    <div id="quiz-output"></div>\n    <script>
+        function generateQuiz() {
+            const question = document.getElementById('question').value;
+            const options = document.getElementById('options').value.split(',');
+            const outputDiv = document.getElementById('quiz-output');
+
+            // Clear previous output safely
+            outputDiv.textContent = '';
+
+            const heading = document.createElement('h2');
+            heading.textContent = 'Your Quiz';
+            outputDiv.appendChild(heading);
+
+            const questionP = document.createElement('p');
+            questionP.textContent = question;
+            outputDiv.appendChild(questionP);
+
+            options.forEach((option) => {
+                const trimmed = option.trim();
+
+                const label = document.createElement('label');
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'quiz-option';
+                radio.value = trimmed;
+
+                label.appendChild(radio);
+                label.appendChild(document.createTextNode(' ' + trimmed));
+                outputDiv.appendChild(label);
+                outputDiv.appendChild(document.createElement('br'));
+            });
+        }
+    </script>\n</body>\n</html>
